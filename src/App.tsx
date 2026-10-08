@@ -7,6 +7,8 @@ import type { Role } from "./data/users";
 import Auth from "./pages/Auth";
 import Home from "./pages/Home";
 import { AdminHome, WorkerHome } from "./pages/Panels";
+import Search from "./pages/Search";
+import WorkerProfile from "./pages/WorkerProfile";
 import { homeFor } from "./routes";
 import { useAppStore } from "./store/useAppStore";
 
@@ -58,6 +60,8 @@ export default function App() {
           <Route element={<Layout />}>
             <Route path="/" element={<HomeRoute />} />
             <Route path="/acceso" element={<Auth />} />
+            <Route path="/buscar" element={<Search />} />
+            <Route path="/trabajadores/:id" element={<WorkerProfile />} />
             <Route element={<RequireRole role="trabajador" />}>
               <Route path="/trabajador" element={<WorkerHome />} />
             </Route>

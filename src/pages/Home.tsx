@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { SearchX } from "lucide-react";
+import { ArrowRight, SearchX } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 import FilterChips from "../components/FilterChips";
 import FeaturedBanner from "../components/FeaturedBanner";
 import CategoryCard from "../components/CategoryCard";
 import { categories } from "../data/mockData";
+import { searchText, visibleWorkers } from "../data/workers";
+import { matchesQuery } from "../utils/search";
 import { useAppStore } from "../store/useAppStore";
 
 // Quita tildes y pasa a minúsculas para que "plomeria" encuentre "Plomería"
@@ -26,6 +29,7 @@ function SkeletonCard() {
 }
 
 export default function Home() {
+  const navigate = useNavigate();
   const query = useAppStore((s) => s.query);
   const category = useAppStore((s) => s.category);
   const [loading, setLoading] = useState(true);
@@ -36,19 +40,28 @@ export default function Home() {
     return () => clearTimeout(t);
   }, []);
 
-  const filtered = useMemo(
-    () =>
-      categories.filter(
-        (c) =>
-          (category === "todos" || c.id === category) &&
-          normalize(`${c.name} ${c.title}`).includes(normalize(query)),
-      ),
-    [query, category],
-  );
+  const filtered = useMemo(() => {
+    const q = query.trim();
+    // Categorías de los trabajadores que coinciden con lo escrito ("fuga de agua" -> plomería)
+    const viaWorkers = new Set(
+      q
+        ? visibleWorkers
+            .filter((w) => matchesQuery(searchText(w), q))
+            .flatMap((w) => w.services.map((s) => s.categoryId))
+        : [],
+    );
+    return categories.filter(
+      (c) =>
+        (category === "todos" || c.id === category) &&
+        (!q || normalize(`${c.name} ${c.title}`).includes(normalize(q)) || viaWorkers.has(c.id)),
+    );
+  }, [query, category]);
+
+  const goToSearch = (q: string) => navigate(`/buscar${q.trim() ? `?q=${encodeURIComponent(q.trim())}` : ""}`);
 
   return (
     <>
-            {/* Bloque verde (hero) */}
+      {/* Bloque verde (hero) */}
       <section className="relative overflow-hidden rounded-b-[2rem] bg-forest-900 pb-6 text-white">
         {/* Foto de fondo: nítida, con zoom muy lento */}
         <motion.div
@@ -72,7 +85,7 @@ export default function Home() {
           >
             Explora servicios del hogar
           </motion.h1>
-          <SearchBar />
+          <SearchBar onEnter={goToSearch} />
           <FilterChips />
         </div>
       </section>
@@ -81,7 +94,17 @@ export default function Home() {
         <FeaturedBanner />
 
         <section>
-          <h2 className="mb-4 font-display text-xl uppercase tracking-wide text-forest-900">Categorías</h2>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="font-display text-xl uppercase tracking-wide text-forest-900">Categorías</h2>
+            <button
+              type="button"
+              onClick={() => goToSearch("")}
+              className="group inline-flex items-center gap-1 text-sm font-semibold text-forest-700 transition-colors hover:text-terracotta-500"
+            >
+              Ver todos los trabajadores
+              <ArrowRight size={16} className="transition-transform duration-200 group-hover:translate-x-1" />
+            </button>
+          </div>
 
           {loading ? (
             <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
@@ -93,7 +116,12 @@ export default function Home() {
             <motion.div layout className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
               <AnimatePresence mode="popLayout">
                 {filtered.map((c, i) => (
-                  <CategoryCard key={c.id} category={c} index={i} />
+                  <CategoryCard
+                    key={c.id}
+                    category={c}
+                    index={i}
+                    onSelect={(id) => navigate(`/buscar?categoria=${id}`)}
+                  />
                 ))}
               </AnimatePresence>
             </motion.div>
@@ -106,6 +134,15 @@ export default function Home() {
               <SearchX size={40} className="text-terracotta-500" />
               <p className="font-semibold text-forest-900">No encontramos ese servicio</p>
               <p className="text-sm text-forest-900/60">Prueba con otra palabra o elige otra categoría.</p>
+              {query.trim() && (
+                <button
+                  type="button"
+                  onClick={() => goToSearch(query)}
+                  className="mt-1 rounded-full bg-terracotta-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-terracotta-600"
+                >
+                  Buscar "{query.trim()}" entre los trabajadores
+                </button>
+              )}
             </motion.div>
           )}
         </section>

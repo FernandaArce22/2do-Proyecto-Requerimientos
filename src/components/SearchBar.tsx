@@ -2,7 +2,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Search, X } from "lucide-react";
 import { useAppStore } from "../store/useAppStore";
 
-export default function SearchBar() {
+type Props = { onEnter?: (query: string) => void };
+
+export default function SearchBar({ onEnter }: Props) {
   const query = useAppStore((s) => s.query);
   const setQuery = useAppStore((s) => s.setQuery);
 
@@ -16,7 +18,10 @@ export default function SearchBar() {
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Busca un servicio: plomería, jardín…"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && onEnter) onEnter(query);
+        }}
+        placeholder="Busca un servicio: plomería, jardín… (Enter para ver trabajadores)"
         aria-label="Buscar servicios"
         className="w-full rounded-2xl border-2 border-transparent bg-white py-3.5 pl-12 pr-11 text-forest-950 shadow-md shadow-black/10 outline-none transition-all duration-200 placeholder:text-forest-900/40 hover:shadow-lg focus:border-terracotta-500 focus:shadow-xl focus:shadow-terracotta-500/20"
       />

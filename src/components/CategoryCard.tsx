@@ -3,9 +3,9 @@ import { motion } from "framer-motion";
 import { ArrowRight, Star } from "lucide-react";
 import type { Category } from "../data/mockData";
 
-type Props = { category: Category; index: number };
+type Props = { category: Category; index: number; onSelect?: (id: string) => void };
 
-export default function CategoryCard({ category, index }: Props) {
+export default function CategoryCard({ category, index, onSelect }: Props) {
   const [imgFailed, setImgFailed] = useState(false);
   const Icon = category.icon;
 
@@ -14,6 +14,13 @@ export default function CategoryCard({ category, index }: Props) {
       layout
       role="button"
       tabIndex={0}
+      onClick={() => onSelect?.(category.id)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelect?.(category.id);
+        }
+      }}
       initial={{ opacity: 0, y: 24, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1, transition: { duration: 0.35, delay: index * 0.05 } }}
       exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
@@ -31,7 +38,7 @@ export default function CategoryCard({ category, index }: Props) {
       </div>
 
       {/* Imagen (o ilustración de respaldo) con zoom al hover */}
-      <div className="aspect-[4/3] overflow-hidden">
+      <div className="relative aspect-[4/3] overflow-hidden">
         {category.image && !imgFailed ? (
           <img
             src={category.image}
@@ -50,6 +57,19 @@ export default function CategoryCard({ category, index }: Props) {
             />
           </div>
         )}
+
+        {/* Sombra inferior que se intensifica al hover */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-forest-950/70 via-transparent to-transparent opacity-50 transition-opacity duration-300 group-hover:opacity-100" />
+
+        {/* Ícono flotante de la categoría */}
+        <span className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-white/90 text-forest-900 shadow-md transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110">
+          <Icon size={16} />
+        </span>
+
+        {/* Texto que aparece al pasar el mouse */}
+        <span className="absolute bottom-2 left-3 translate-y-3 text-xs font-bold text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+          Ver trabajadores →
+        </span>
       </div>
 
       {/* Datos */}
