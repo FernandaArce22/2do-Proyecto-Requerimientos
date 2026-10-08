@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, CalendarCheck, ChevronLeft, ChevronRight, Clock, MapPin, ShieldCheck, UserX, X } from "lucide-react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Avatar from "../components/Avatar";
 import Button from "../components/Button";
 import Stars from "../components/Stars";
