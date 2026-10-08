@@ -99,7 +99,7 @@ export default function WorkerProfile() {
       showToast("error", "No puedes contratarte a ti mismo.");
       return;
     }
-    showToast("info", "Aquí continúa el Incremento 3: formulario de solicitud (CU-07).");
+        navigate(`/solicitar/${worker.id}`);
   };
 
   const stats = [

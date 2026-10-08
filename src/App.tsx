@@ -6,7 +6,9 @@ import Toaster from "./components/Toaster";
 import type { Role } from "./data/users";
 import Auth from "./pages/Auth";
 import Home from "./pages/Home";
+import MyRequests from "./pages/MyRequests";
 import { AdminHome, WorkerHome } from "./pages/Panels";
+import RequestService from "./pages/RequestService";
 import Search from "./pages/Search";
 import WorkerProfile from "./pages/WorkerProfile";
 import { homeFor } from "./routes";
@@ -62,6 +64,10 @@ export default function App() {
             <Route path="/acceso" element={<Auth />} />
             <Route path="/buscar" element={<Search />} />
             <Route path="/trabajadores/:id" element={<WorkerProfile />} />
+            <Route element={<RequireRole role="cliente" />}>
+              <Route path="/solicitar/:id" element={<RequestService />} />
+              <Route path="/solicitudes" element={<MyRequests />} />
+            </Route>
             <Route element={<RequireRole role="trabajador" />}>
               <Route path="/trabajador" element={<WorkerHome />} />
             </Route>

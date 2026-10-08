@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, LogIn, LogOut, Repeat, Sprout } from "lucide-react";
+import { ChevronDown, ClipboardList, LogIn, LogOut, Repeat, Sprout } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import Button from "./Button";
 import NotificationBell from "./NotificationBell";
@@ -166,6 +166,16 @@ export default function Header() {
                     </div>
 
                     <div className="py-1">
+                      {activeRole === "cliente" && (
+                        <MenuItem
+                          icon={<ClipboardList size={18} />}
+                          label="Mis solicitudes"
+                          onClick={() => {
+                            setOpen(false);
+                            navigate("/solicitudes");
+                          }}
+                        />
+                      )}
                       {activeRole === "cliente" && (
                         <MenuItem
                           icon={<Repeat size={18} />}
