@@ -1,7 +1,10 @@
 import { motion } from "framer-motion";
-import { AlertTriangle, CalendarCheck, ClipboardList, ShieldCheck, Users } from "lucide-react";
+import { AlertTriangle, ArrowRight, CalendarCheck, ClipboardList, Clock, ShieldCheck, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { Link } from "react-router-dom";
+import { lastJobText, workers } from "../data/workers";
 import { useAppStore } from "../store/useAppStore";
+import { useRequestsStore } from "../store/useRequestsStore";
 
 function StatCard({
   icon: Icon,
@@ -41,10 +44,17 @@ function SoonCard({ text }: { text: string }) {
 
 export function WorkerHome() {
   const user = useAppStore((s) => s.currentUser);
+  const requests = useRequestsStore((s) => s.requests);
   if (!user) return null;
 
-  // Valores de ejemplo hasta implementar CU-13
-  const done = 2;
+  const worker = workers.find((w) => w.userId === user.id);
+  const mine = worker ? requests.filter((r) => r.workerId === worker.id) : [];
+  const pending = mine.filter((r) => r.status === "pendiente").length;
+  const accepted = mine.filter((r) => r.status === "aceptada").length;
+  const finishedNow = mine.filter((r) => r.status === "finalizada").length;
+
+  // Valor base de ejemplo + los trabajos que se cierran en esta sesión (CU-13 se completa después)
+  const done = 2 + finishedNow;
   const min = 5;
 
   return (
@@ -68,16 +78,45 @@ export function WorkerHome() {
         </motion.div>
       )}
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-        <StatCard icon={ClipboardList} label="Solicitudes pendientes" value={0} delay={0.05} />
-        <StatCard icon={CalendarCheck} label="Último trabajo" value="hace 4 días" delay={0.1} />
-        <StatCard icon={ShieldCheck} label="Estado de la cuenta" value={user.accountActive ? "Activa" : "Inactiva"} delay={0.15} />
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -3 }}>
+        <Link
+          to="/trabajador/solicitudes"
+          className="group flex items-center justify-between gap-4 rounded-2xl bg-forest-900 p-5 text-white shadow-lg shadow-forest-900/25 transition-colors duration-300 hover:bg-forest-800"
+        >
+          <div>
+            <p className="font-display text-xl uppercase tracking-wide">Solicitudes recibidas</p>
+            <p className="text-sm text-white/70">
+              {pending > 0
+                ? `Tienes ${pending} ${pending === 1 ? "solicitud pendiente" : "solicitudes pendientes"} por responder`
+                : "No tienes solicitudes pendientes"}
+            </p>
+          </div>
+          <span className="flex items-center gap-3">
+            {pending > 0 && (
+              <motion.span
+                animate={{ scale: [1, 1.15, 1] }}
+                transition={{ duration: 1.4, repeat: Infinity }}
+                className="grid h-9 min-w-9 place-items-center rounded-full bg-terracotta-500 px-2 text-sm font-bold"
+              >
+                {pending}
+              </motion.span>
+            )}
+            <ArrowRight className="transition-transform duration-200 group-hover:translate-x-1" />
+          </span>
+        </Link>
+      </motion.div>
+
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <StatCard icon={ClipboardList} label="Solicitudes pendientes" value={pending} delay={0.05} />
+        <StatCard icon={CalendarCheck} label="Servicios por realizar" value={accepted} delay={0.1} />
+        <StatCard icon={Clock} label="Último trabajo" value={worker ? lastJobText(worker.lastJobDaysAgo) : "—"} delay={0.15} />
+        <StatCard icon={ShieldCheck} label="Estado de la cuenta" value={user.accountActive ? "Activa" : "Inactiva"} delay={0.2} />
       </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
+        transition={{ delay: 0.25 }}
         className="rounded-2xl bg-white p-5 shadow-md shadow-black/10"
       >
         <div className="mb-2 flex items-center justify-between text-sm font-semibold text-forest-900">
@@ -88,15 +127,16 @@ export function WorkerHome() {
         </div>
         <div className="h-3 overflow-hidden rounded-full bg-forest-900/10">
           <motion.div
+            key={done}
             initial={{ width: 0 }}
-            animate={{ width: `${(done / min) * 100}%` }}
-            transition={{ duration: 1, delay: 0.4, ease: "easeOut" }}
+            animate={{ width: `${Math.min(1, done / min) * 100}%` }}
+            transition={{ duration: 1, delay: 0.3, ease: "easeOut" }}
             className="h-full rounded-full bg-gradient-to-r from-forest-700 to-gold-400"
           />
         </div>
       </motion.div>
 
-      <SoonCard text="Próximamente: bandeja de solicitudes (CU-09) y perfil de servicios (CU-05)." />
+      <SoonCard text="Próximamente: perfil de servicios y fotos de trabajos (CU-05)." />
     </main>
   );
 }

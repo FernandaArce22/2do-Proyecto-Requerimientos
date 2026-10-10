@@ -8,9 +8,9 @@ const MAX_FILES = 4;
 const MAX_IMAGE = 5 * 1024 * 1024;
 const MAX_VIDEO = 25 * 1024 * 1024;
 
-type Props = { files: Attachment[]; onChange: (files: Attachment[]) => void };
+type Props = { files: Attachment[]; onChange: (files: Attachment[]) => void; title?: string };
 
-export default function FileDrop({ files, onChange }: Props) {
+export default function FileDrop({ files, onChange, title = "Agrega fotos o video del problema" }: Props) {
   const input = useRef<HTMLInputElement>(null);
   const [drag, setDrag] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
@@ -87,7 +87,7 @@ export default function FileDrop({ files, onChange }: Props) {
           size={30}
           className="text-forest-700 transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-110 group-hover:text-terracotta-500"
         />
-        <span className="text-sm font-semibold text-forest-900">Agrega fotos o video del problema</span>
+        <span className="text-sm font-semibold text-forest-900">{title}</span>
         <span className="text-xs text-forest-900/60">
           Arrastra aquí o toca para elegir · hasta {MAX_FILES} archivos · fotos 5 MB · videos 25 MB
         </span>

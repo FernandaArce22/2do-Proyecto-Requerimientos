@@ -11,6 +11,7 @@ import { AdminHome, WorkerHome } from "./pages/Panels";
 import RequestService from "./pages/RequestService";
 import Search from "./pages/Search";
 import WorkerProfile from "./pages/WorkerProfile";
+import WorkerRequests from "./pages/WorkerRequests";
 import { homeFor } from "./routes";
 import { useAppStore } from "./store/useAppStore";
 
@@ -70,6 +71,7 @@ export default function App() {
             </Route>
             <Route element={<RequireRole role="trabajador" />}>
               <Route path="/trabajador" element={<WorkerHome />} />
+              <Route path="/trabajador/solicitudes" element={<WorkerRequests />} />
             </Route>
             <Route element={<RequireRole role="administrador" />}>
               <Route path="/admin" element={<AdminHome />} />

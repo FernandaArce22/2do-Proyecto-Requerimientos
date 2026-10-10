@@ -166,6 +166,16 @@ export default function Header() {
                     </div>
 
                     <div className="py-1">
+                       {activeRole === "trabajador" && (
+                        <MenuItem
+                          icon={<ClipboardList size={18} />}
+                          label="Solicitudes recibidas"
+                          onClick={() => {
+                            setOpen(false);
+                            navigate("/trabajador/solicitudes");
+                          }}
+                        />
+                      )}
                       {activeRole === "cliente" && (
                         <MenuItem
                           icon={<ClipboardList size={18} />}
