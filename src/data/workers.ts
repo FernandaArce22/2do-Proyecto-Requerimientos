@@ -255,8 +255,11 @@ export const workers: Worker[] = [
   },
 ];
 
-// Solo se muestran trabajadores verificados, activos y con perfil publicado (CU-06, precondición)
-export const visibleWorkers = workers.filter((w) => w.verified && w.active && w.published);
+
+   export const visibleWorkers: Worker[] = workers.filter((w) => w.verified && w.active && w.published);
+   export const refreshVisible = () => {
+     visibleWorkers.splice(0, visibleWorkers.length, ...workers.filter((w) => w.verified && w.active && w.published));
+   };
 
 export const searchText = (w: Worker) =>
   [

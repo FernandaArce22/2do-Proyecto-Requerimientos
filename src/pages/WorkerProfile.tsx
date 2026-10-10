@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Avatar from "../components/Avatar";
 import Button from "../components/Button";
 import Stars from "../components/Stars";
+import ProfileCover from "../components/ProfileCover";
 import { categories } from "../data/mockData";
 import { colones, fromRate, lastJobText, workers } from "../data/workers";
 import type { Photo } from "../data/workers";
@@ -110,8 +111,9 @@ export default function WorkerProfile() {
 
   return (
     <>
-      <section className="rounded-b-[2rem] bg-forest-900 pb-8 text-white">
-        <div className="mx-auto max-w-5xl px-4">
+      <section className="relative overflow-hidden rounded-b-[2rem] bg-forest-900 pb-8 text-white">
+        <ProfileCover worker={worker} />
+        <div className="relative mx-auto max-w-5xl px-4">
           <button
             type="button"
             onClick={() => navigate(-1)}
