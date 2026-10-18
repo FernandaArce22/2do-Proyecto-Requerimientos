@@ -7,6 +7,7 @@ import Button from "../components/Button";
 import Modal from "../components/Modal";
 import ReasonModal from "../components/ReasonModal";
 import RequestOutcome from "../components/RequestOutcome";
+import RequestChat from "../components/RequestChat";
 import StarInput from "../components/StarInput";
 import Stepper from "../components/Stepper";
 import Timeline from "../components/Timeline";
@@ -258,6 +259,7 @@ function RequestCard({ r, onCancel, onConfirm, onReport, onRate, onFindOther, on
         )}
       </div>
 
+      <RequestChat r={r} />
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}

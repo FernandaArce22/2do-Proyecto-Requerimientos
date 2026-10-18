@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Image as ImageIcon, ImagePlus, Pencil, Plus, Trash2 } from "lucide-react";
 import { useAppStore } from "../store/useAppStore";
-import { refreshVisible } from "../data/workers";
+import { refreshVisible, zones } from "../data/workers";
 import { categories } from "../data/mockData";
 import { coverIdOf, findWorker, photosOf, savePhotos, saveServices, servicesOf, setCoverId } from "../data/workAdapter";
 import type { PhotoView, ServiceView } from "../data/workAdapter";
@@ -26,6 +26,11 @@ export default function WorkerServices() {
   const refresh = () => setTick((t) => t + 1);
 
   const [msg, setMsg] = useState<{ text: string; tone: "ok" | "warn" | "info" } | null>(null);
+
+  // Biografía y zona (HU-24)
+  const [bio, setBio] = useState(worker?.bio ?? "");
+  const [zone, setZone] = useState(worker?.zone ?? zones[0]);
+  const [bioErr, setBioErr] = useState("");
 
   // Servicio (crear / editar)
   const [svcOpen, setSvcOpen] = useState(false);
@@ -56,6 +61,19 @@ export default function WorkerServices() {
 
   const services = servicesOf(worker);
   const photos = photosOf(worker);
+
+  const saveProfile = () => {
+    const text = bio.trim();
+    if (text.length < 20) return setBioErr("Cuenta tu experiencia con al menos 20 caracteres.");
+    setBioErr("");
+    worker.bio = text;
+    worker.zone = zone;
+    refreshVisible();
+    setMsg({ text: "Tu información de perfil se actualizó.", tone: "ok" });
+    refresh();
+  };
+
+  const profileDirty = bio.trim() !== worker.bio || zone !== worker.zone;
 
   const openSvc = (s?: ServiceView) => {
     setEditId(s?.id ?? null);
@@ -174,6 +192,24 @@ export default function WorkerServices() {
             <Btn variant={worker.published ? "ghost" : "gold"} onClick={togglePublish}>
               {worker.published ? <EyeOff size={16} /> : <Eye size={16} />}
               {worker.published ? "Pasar a borrador" : "Publicar perfil"}
+            </Btn>
+          </div>
+        </Card>
+
+        <Card>
+          <h2 className="mb-4 font-display text-xl uppercase text-forest-950">Sobre ti</h2>
+          <div className="space-y-4">
+            <TextAreaField label="Biografía" value={bio} onChange={setBio} error={bioErr} rows={4} max={400} placeholder="Años de experiencia, tipo de trabajos, herramientas…" />
+            <SelectField label="Zona donde trabajas" value={zone} onChange={setZone}>
+              {zones.map((z) => (
+                <option key={z} value={z}>
+                  {z}
+                </option>
+              ))}
+            </SelectField>
+            {profileDirty && <p className="text-sm font-semibold text-terracotta-600">Tienes cambios sin guardar.</p>}
+            <Btn onClick={saveProfile} disabled={!profileDirty}>
+              Guardar cambios
             </Btn>
           </div>
         </Card>

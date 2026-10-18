@@ -20,6 +20,7 @@ import FileDrop from "../components/FileDrop";
 import Modal from "../components/Modal";
 import ReasonModal from "../components/ReasonModal";
 import RequestOutcome from "../components/RequestOutcome";
+import RequestChat from "../components/RequestChat";
 import Timeline from "../components/Timeline";
 import { formatDate, statusInfo, todayISO } from "../data/requests";
 import type { Attachment, RequestStatus, ServiceRequest } from "../data/requests";
@@ -161,6 +162,7 @@ function RequestCard({ r, clientName, onAccept, onReject, onCancel, onFinish, on
             )}
           </div>
 
+          <RequestChat r={r} />
           <button
             type="button"
             onClick={() => setOpen((o) => !o)}

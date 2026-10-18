@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { MotionConfig } from "framer-motion";
 import { HashRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
+import Button from "./components/Button";
 import Header from "./components/Header";
 import QuickNav from "./components/QuickNav";
 import Toaster from "./components/Toaster";
@@ -45,13 +46,43 @@ function HomeRoute() {
   return <Home />;
 }
 
-// Protege rutas por rol activo
+// Protege rutas por rol activo. Si la cuenta tiene ese rol pero está en otro modo,
+// ofrece cambiar de modo en lugar de mandar al usuario a otra pantalla.
+const ROLE_LABEL: Record<Role, string> = { cliente: "cliente", trabajador: "trabajador", administrador: "administrador" };
+
 function RequireRole({ role }: { role: Role }) {
   const currentUser = useAppStore((s) => s.currentUser);
   const activeRole = useAppStore((s) => s.activeRole);
+  const switchRole = useAppStore((s) => s.switchRole);
+  const showToast = useAppStore((s) => s.showToast);
   if (!currentUser) return <Navigate to="/acceso" replace />;
-  if (activeRole !== role) return <Navigate to={homeFor(activeRole)} replace />;
-  return <Outlet />;
+  if (activeRole === role) return <Outlet />;
+
+  const canSwitch =
+    currentUser.roles.includes(role) && (role !== "trabajador" || currentUser.workerStatus === "verificado");
+  if (!canSwitch) return <Navigate to={homeFor(activeRole)} replace />;
+
+  return (
+    <main className="mx-auto max-w-md px-4 py-16 text-center">
+      <h1 className="font-display text-2xl uppercase text-forest-900">Esta pantalla es del modo {ROLE_LABEL[role]}</h1>
+      <p className="mt-3 text-sm text-forest-900/70">
+        Ahora estás en modo {activeRole ? ROLE_LABEL[activeRole] : "visitante"}. Cambia de modo para ver esta pantalla.
+      </p>
+      <div className="mt-6 flex flex-wrap justify-center gap-3">
+        <Button
+          onClick={() => {
+            const res = switchRole(role);
+            if (!res.ok) showToast("error", res.error);
+          }}
+        >
+          Cambiar a modo {ROLE_LABEL[role]}
+        </Button>
+        <Button variant="light" onClick={() => window.history.back()} className="ring-1 ring-forest-900/15">
+          Volver
+        </Button>
+      </div>
+    </main>
+  );
 }
 
 export default function App() {

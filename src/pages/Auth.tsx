@@ -5,6 +5,7 @@ import { AlertCircle, ArrowLeft, Check, Loader2, Lock, Mail, Phone, ShieldCheck,
 import { Link, Navigate } from "react-router-dom";
 import Button from "../components/Button";
 import Field from "../components/Field";
+import Modal from "../components/Modal";
 import { DEMO_PASSWORD, seedUsers } from "../data/users";
 import type { User } from "../data/users";
 import { homeFor } from "../routes";
@@ -69,6 +70,10 @@ export default function Auth() {
   const [touched, setTouched] = useState<Partial<Record<FieldName, boolean>>>({});
   const [formError, setFormError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [termsOpen, setTermsOpen] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotSent, setForgotSent] = useState(false);
 
   // Precondición de CU-01: no tener sesión activa
   if (currentUser) return <Navigate to={homeFor(activeRole)} replace />;
@@ -311,7 +316,20 @@ export default function Auth() {
                       </motion.span>
                     )}
                   </span>
-                  <span>Acepto los términos de uso y la política de privacidad.</span>
+                  <span>
+                    Acepto los{" "}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setTermsOpen(true);
+                      }}
+                      className="font-semibold text-forest-700 underline underline-offset-4 hover:text-terracotta-500"
+                    >
+                      términos de uso y la política de privacidad
+                    </button>
+                    .
+                  </span>
                 </label>
                 {err("terms") && <p className="mt-1.5 text-xs font-medium text-terracotta-600">{err("terms")}</p>}
               </div>
@@ -320,7 +338,11 @@ export default function Auth() {
             {mode === "login" && (
               <button
                 type="button"
-                onClick={() => showToast("info", "Te enviamos un enlace para restablecer tu contraseña (simulado).")}
+                onClick={() => {
+                  setForgotEmail(form.email);
+                  setForgotSent(false);
+                  setForgotOpen(true);
+                }}
                 className="text-sm font-semibold text-forest-700 underline-offset-4 transition-colors hover:text-terracotta-500 hover:underline"
               >
                 ¿Olvidaste tu contraseña?
@@ -363,6 +385,58 @@ export default function Auth() {
           )}
         </div>
       </div>
+
+      <Modal open={termsOpen} title="Términos de uso y privacidad" onClose={() => setTermsOpen(false)}>
+        <div className="space-y-3 text-sm text-forest-900/80">
+          <p><strong>Uso de la plataforma.</strong> La plataforma conecta clientes con trabajadores verificados de servicios del hogar. No somos el empleador de los trabajadores.</p>
+          <p><strong>Anticipo y cancelaciones.</strong> Al enviar una solicitud se cobra un anticipo. Se devuelve completo si el trabajador rechaza, cancela o no responde; si el cliente cancela una solicitud ya aceptada, se aplica la tarifa de cancelación vigente.</p>
+          <p><strong>Reseñas.</strong> Los comentarios ofensivos no se publican. Solo el cliente de un servicio finalizado puede calificarlo.</p>
+          <p><strong>Datos personales.</strong> Tratamos tus datos según la Ley N.º 8968. Usamos tu información y fotografías solo para prestar el servicio, y puedes pedir que se corrijan o eliminen.</p>
+          <p className="text-xs text-forest-900/50">Texto de referencia del prototipo; la versión legal final la define el asesor legal.</p>
+          <Button
+            onClick={() => {
+              set({ terms: true });
+              touch("terms");
+              setTermsOpen(false);
+            }}
+            className="w-full justify-center"
+          >
+            Entendido, acepto
+          </Button>
+        </div>
+      </Modal>
+
+      <Modal open={forgotOpen} title="Restablecer contraseña" onClose={() => setForgotOpen(false)}>
+        {forgotSent ? (
+          <div className="space-y-4 text-sm text-forest-900/80">
+            <p>Si el correo <strong>{forgotEmail.trim()}</strong> tiene una cuenta, te enviamos un enlace para crear una nueva contraseña. Revisa tu bandeja y la carpeta de correo no deseado.</p>
+            <p className="text-xs text-forest-900/50">Envío simulado en el prototipo.</p>
+            <Button onClick={() => setForgotOpen(false)} className="w-full justify-center">Volver a iniciar sesión</Button>
+          </div>
+        ) : (
+          <form
+            className="space-y-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (emailRe.test(forgotEmail.trim())) setForgotSent(true);
+            }}
+          >
+            <Field
+              label="Correo electrónico"
+              icon={Mail}
+              type="email"
+              value={forgotEmail}
+              onChange={setForgotEmail}
+              placeholder="tucorreo@ejemplo.com"
+              autoComplete="email"
+              error={forgotEmail && !emailRe.test(forgotEmail.trim()) ? "Escribe un correo válido." : ""}
+            />
+            <Button type="submit" disabled={!emailRe.test(forgotEmail.trim())} className="w-full justify-center">
+              Enviar enlace
+            </Button>
+          </form>
+        )}
+      </Modal>
     </div>
   );
 }

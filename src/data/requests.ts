@@ -18,6 +18,7 @@ export type RequestStatus =
   | "vencida"
   | "en_disputa";
 
+export type ChatMessage = { id: string; from: string; text: string; at: number };
 export type RequestEvent = { label: string; at: number };
 export type Rating = { stars: number; comment: string };
 
@@ -48,6 +49,7 @@ export type ServiceRequest = {
   fee?: number;
   rating?: Rating;
   autoClosed?: boolean;
+  messages: ChatMessage[];
 };
 
 export const statusInfo: Record<RequestStatus, { label: string; cls: string }> = {
