@@ -3,7 +3,7 @@ import { addDaysISO, roundAdvance, todayISO } from "../data/requests";
 import type { Attachment, Rating, ServiceRequest } from "../data/requests";
 import { workers } from "../data/workers";
 import { useAppStore } from "./useAppStore";
-import { notifyUser } from "./useNotifStore";
+import { notifyAdmins, notifyUser } from "./useNotifStore";
 
 type NewRequest = Omit<ServiceRequest, "id" | "code" | "createdAt" | "status" | "events" | "resultPhotos" | "messages">;
 type CancelBy = "cliente" | "trabajador";
@@ -22,6 +22,8 @@ type State = {
   report: (id: string, reason: string) => void;
   rate: (id: string, rating: Rating, author: string) => void;
   sendMessage: (id: string, from: string, text: string) => void;
+  replyDispute: (id: string, text: string) => void;
+  resolveDispute: (id: string, favor: "cliente" | "trabajador", note: string) => void;
 };
 
 const ago = (hours: number) => Date.now() - hours * 3_600_000;
@@ -96,6 +98,35 @@ const seed: ServiceRequest[] = [
     events: [
       { label: "Solicitud enviada · anticipo pagado", at: ago(30) },
       { label: "Solicitud aceptada por el trabajador", at: ago(20) },
+    ],
+    resultPhotos: [],
+    messages: [],
+  },
+  {
+    id: "seed4",
+    code: "SOL-094",
+    clientId: "u4",
+    workerId: "w1",
+    serviceTitle: "Instalación de sanitarios",
+    categoryId: "plomeria",
+    description: "Cambio del inodoro del baño de visitas.",
+    date: addDaysISO(-3),
+    slot: "10:00 a. m.",
+    location: { lat: 10.3205, lng: -84.4262 },
+    directions: "Condominio Las Palmas, casa 7.",
+    attachments: [],
+    rate: 25000,
+    advance: roundAdvance(25000, 20),
+    paymentMethod: "tarjeta",
+    receipt: "CMP-604417",
+    status: "en_disputa",
+    reason: "Marcó el trabajo como terminado, pero el inodoro sigue goteando en la base.",
+    createdAt: ago(100),
+    events: [
+      { label: "Solicitud enviada · anticipo pagado", at: ago(100) },
+      { label: "Solicitud aceptada por el trabajador", at: ago(90) },
+      { label: "Trabajo marcado como finalizado", at: ago(50) },
+      { label: "El cliente reportó un problema · en revisión", at: ago(40) },
     ],
     resultPhotos: [],
     messages: [],
@@ -210,7 +241,10 @@ export const useRequestsStore = create<State>((set, get) => {
     report: (id, reason) => {
       const r = find(id);
       change(id, { status: "en_disputa", reason }, "El cliente reportó un problema · en revisión");
-      if (r) toWorker(r, "El cliente reportó un problema", "La solicitud quedó en revisión.");
+      if (r) {
+        toWorker(r, "El cliente reportó un problema", "La solicitud quedó en revisión. Puedes enviar tu versión desde la solicitud.");
+        notifyAdmins("Nueva disputa", `${r.code} · ${r.serviceTitle} necesita revisión.`, "/admin/disputas");
+      }
     },
 
     sendMessage: (id, from, text) => {
@@ -226,6 +260,35 @@ export const useRequestsStore = create<State>((set, get) => {
       const sender = useAppStore.getState().users.find((u) => u.id === from)?.name ?? "Alguien";
       if (from === r.clientId) toWorker(r, "Mensaje nuevo", `${sender}: ${body.slice(0, 60)}`);
       else toClient(r, "Mensaje nuevo", `${sender}: ${body.slice(0, 60)}`);
+    },
+
+    replyDispute: (id, text) => {
+      const r = find(id);
+      const body = text.trim();
+      if (!r || r.status !== "en_disputa" || !body) return;
+      change(id, { workerReply: body }, "El trabajador envió su versión de lo ocurrido");
+      notifyAdmins("Disputa con respuesta", `${r.code}: el trabajador envió su versión.`, "/admin/disputas");
+    },
+
+    resolveDispute: (id, favor, note) => {
+      const r = find(id);
+      const body = note.trim();
+      if (!r || r.status !== "en_disputa" || !body) return;
+      const resolution = { favor, note: body, at: Date.now() };
+      if (favor === "trabajador") {
+        // El trabajo se da por realizado: suma a su historial
+        const w = workers.find((x) => x.id === r.workerId);
+        if (w) {
+          w.jobsDone += 1;
+          w.lastJobDaysAgo = 0;
+        }
+        change(id, { status: "finalizada", autoClosed: false, resolution }, "Disputa resuelta a favor del trabajador");
+      } else {
+        change(id, { status: "cancelada", refund: r.advance, fee: 0, resolution }, "Disputa resuelta a favor del cliente · anticipo devuelto");
+      }
+      const text = `Resolución: a favor ${favor === "cliente" ? "del cliente" : "del trabajador"}. ${body}`;
+      toClient(r, "Tu disputa fue resuelta", text);
+      toWorker(r, "La disputa fue resuelta", text);
     },
 
     rate: (id, rating, author) => {

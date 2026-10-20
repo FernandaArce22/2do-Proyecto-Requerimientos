@@ -50,6 +50,8 @@ export type ServiceRequest = {
   rating?: Rating;
   autoClosed?: boolean;
   messages: ChatMessage[];
+  workerReply?: string; // versión del trabajador en una disputa
+  resolution?: { favor: "cliente" | "trabajador"; note: string; at: number };
 };
 
 export const statusInfo: Record<RequestStatus, { label: string; cls: string }> = {

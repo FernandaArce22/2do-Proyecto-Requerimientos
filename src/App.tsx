@@ -7,6 +7,7 @@ import QuickNav from "./components/QuickNav";
 import Toaster from "./components/Toaster";
 import type { Role } from "./data/users";
 import AdminActivity from "./pages/AdminActivity";
+import AdminDisputes from "./pages/AdminDisputes";
 import AdminSettings from "./pages/AdminSettings";
 import Apply from "./pages/Apply";
 import Auth from "./pages/Auth";
@@ -117,6 +118,7 @@ export default function App() {
               <Route path="/admin" element={<AdminHome />} />
               <Route path="/admin/postulaciones" element={<ReviewApplications />} />
               <Route path="/admin/actividad" element={<AdminActivity />} />
+              <Route path="/admin/disputas" element={<AdminDisputes />} />
               <Route path="/admin/configuracion" element={<AdminSettings />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />

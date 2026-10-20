@@ -6,6 +6,7 @@ import {
   CalendarCheck,
   ClipboardList,
   Clock,
+  Scale,
   Settings,
   ShieldCheck,
   UserCheck,
@@ -220,6 +221,7 @@ export function AdminHome() {
   const reactivations = useWorkStore((s) => s.reactivations);
   useWorkStore((s) => s.lastEvaluation); // se actualiza al cerrar el mes
 
+  const disputes = useRequestsStore((s) => s.requests).filter((r) => r.status === "en_disputa").length;
   const pending = applications.filter((a) => a.status === "en_revision").length;
   const verified = users.filter((u) => u.workerStatus === "verificado").length;
 
@@ -251,6 +253,14 @@ export function AdminHome() {
         text="Evalúa quién cumple el mínimo y gestiona reactivaciones"
         badge={reactivations.length}
         delay={0.05}
+      />
+      <LinkBlock
+        to="/admin/disputas"
+        icon={Scale}
+        title="Disputas"
+        text={disputes > 0 ? `${disputes} por resolver` : "No hay disputas abiertas"}
+        badge={disputes}
+        delay={0.075}
       />
       <LinkBlock to="/admin/configuracion" icon={Settings} title="Configuración" text="Anticipo, mínimo mensual y plazos" delay={0.1} />
     </main>

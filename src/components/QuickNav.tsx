@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Activity, Briefcase, ClipboardList, Settings, UserCheck, Wrench } from "lucide-react";
+import { Activity, Briefcase, ClipboardList, Scale, Settings, UserCheck, Wrench } from "lucide-react";
 import type { ComponentType } from "react";
 import { useAppStore } from "../store/useAppStore";
 
@@ -24,6 +24,7 @@ export default function QuickNav() {
     items = [
       { to: "/admin/postulaciones", label: "Postulaciones", icon: UserCheck },
       { to: "/admin/actividad", label: "Actividad mensual", icon: Activity },
+      { to: "/admin/disputas", label: "Disputas", icon: Scale },
       { to: "/admin/configuracion", label: "Configuración", icon: Settings },
     ];
   }
