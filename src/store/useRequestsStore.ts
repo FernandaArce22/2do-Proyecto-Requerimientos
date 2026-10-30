@@ -114,7 +114,9 @@ const seed: ServiceRequest[] = [
     slot: "10:00 a. m.",
     location: { lat: 10.3205, lng: -84.4262 },
     directions: "Condominio Las Palmas, casa 7.",
-    attachments: [],
+    attachments: [
+      { id: "a-094-1", name: "gotera-base-inodoro.jpg", kind: "imagen", url: "/img/plomeria.jpg", size: 180_000 },
+    ],
     rate: 25000,
     advance: roundAdvance(25000, 20),
     paymentMethod: "tarjeta",
@@ -128,7 +130,9 @@ const seed: ServiceRequest[] = [
       { label: "Trabajo marcado como finalizado", at: ago(50) },
       { label: "El cliente reportó un problema · en revisión", at: ago(40) },
     ],
-    resultPhotos: [],
+    resultPhotos: [
+      { id: "r-094-1", name: "inodoro-instalado.jpg", kind: "imagen", url: "/img/plomeria.jpg", size: 160_000 },
+    ],
     messages: [],
   },
 ];

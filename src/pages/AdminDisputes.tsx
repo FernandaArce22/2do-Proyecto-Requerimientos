@@ -1,11 +1,34 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { formatDateTime, statusInfo } from "../data/requests";
-import type { ServiceRequest } from "../data/requests";
+import type { Attachment, ServiceRequest } from "../data/requests";
 import { colones, workers } from "../data/workers";
 import { Banner, Btn, Card, PageTitle } from "../components/Ui";
 import { useAppStore } from "../store/useAppStore";
 import { useRequestsStore } from "../store/useRequestsStore";
+
+function MediaBlock({ title, files }: { title: string; files: Attachment[] }) {
+  return (
+    <div className="rounded-2xl bg-cream-50 p-3 text-sm">
+      <p className="text-xs font-bold uppercase text-forest-900/60">{title}</p>
+      {files.length === 0 ? (
+        <p className="mt-1 text-forest-900/60">Sin archivos adjuntos.</p>
+      ) : (
+        <ul className="mt-2 grid grid-cols-3 gap-2">
+          {files.map((f) => (
+            <li key={f.id} className="aspect-square overflow-hidden rounded-lg bg-forest-900/10">
+              {f.kind === "imagen" ? (
+                <img src={f.url} alt={f.name} className="h-full w-full object-cover" />
+              ) : (
+                <video src={f.url} controls className="h-full w-full object-cover" />
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 function DisputeCard({ r, onResolved }: { r: ServiceRequest; onResolved: (m: string) => void }) {
   const users = useAppStore((s) => s.users);
@@ -48,6 +71,11 @@ function DisputeCard({ r, onResolved }: { r: ServiceRequest; onResolved: (m: str
           <p className="text-xs font-bold uppercase text-forest-900/60">Versión del trabajador</p>
           <p className="mt-1">{r.workerReply ?? "Aún no ha respondido."}</p>
         </div>
+      </div>
+
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <MediaBlock title="Fotos o video del problema" files={r.attachments} />
+        <MediaBlock title="Fotos del resultado" files={r.resultPhotos} />
       </div>
 
       {r.messages.length > 0 && (
