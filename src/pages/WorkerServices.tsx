@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Image as ImageIcon, ImagePlus, Pencil, Plus, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Eye, EyeOff, Image as ImageIcon, ImagePlus, Pencil, Plus, Trash2, UserRound } from "lucide-react";
 import { useAppStore } from "../store/useAppStore";
 import { refreshVisible, zones } from "../data/workers";
 import { categories } from "../data/mockData";
@@ -22,6 +23,7 @@ const colones = (n: number) => `₡${n.toLocaleString("es-CR")}`;
 export default function WorkerServices() {
   const user = useAppStore((s) => s.currentUser);
   const worker = findWorker(user?.id);
+  const navigate = useNavigate();
   const [, setTick] = useState(0);
   const refresh = () => setTick((t) => t + 1);
 
@@ -189,10 +191,15 @@ export default function WorkerServices() {
               <p className="font-bold text-forest-950">Estado del perfil</p>
               <p className="text-sm text-forest-900/70">{worker.published ? "Publicado: los clientes te encuentran." : "Borrador: nadie te ve todavía."}</p>
             </div>
-            <Btn variant={worker.published ? "ghost" : "gold"} onClick={togglePublish}>
-              {worker.published ? <EyeOff size={16} /> : <Eye size={16} />}
-              {worker.published ? "Pasar a borrador" : "Publicar perfil"}
-            </Btn>
+            <div className="flex flex-wrap gap-2">
+              <Btn variant="ghost" onClick={() => navigate(`/trabajadores/${worker.id}`)}>
+                <UserRound size={16} /> Ver mi perfil
+              </Btn>
+              <Btn variant={worker.published ? "ghost" : "gold"} onClick={togglePublish}>
+                {worker.published ? <EyeOff size={16} /> : <Eye size={16} />}
+                {worker.published ? "Pasar a borrador" : "Publicar perfil"}
+              </Btn>
+            </div>
           </div>
         </Card>
 
@@ -264,14 +271,14 @@ export default function WorkerServices() {
                     onClick={() => {
                       const isCover = coverIdOf(worker) === p.id;
                       setCoverId(worker, isCover ? "" : p.id);
-                      setMsg({ text: isCover ? "Se quitó la portada." : "Esta foto es ahora la portada de tu perfil.", tone: "ok" });
+                      setMsg({ text: isCover ? "Se quitó tu foto de perfil." : "Esta foto es ahora tu foto de perfil.", tone: "ok" });
                       refresh();
                     }}
                     className={`absolute bottom-9 left-2 flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold shadow transition-all hover:scale-105 ${
                       coverIdOf(worker) === p.id ? "bg-gold-400 text-forest-950" : "bg-white/90 text-forest-900 opacity-0 group-hover:opacity-100"
                     }`}
                   >
-                    <ImageIcon size={12} /> {coverIdOf(worker) === p.id ? "Portada" : "Usar de portada"}
+                    <ImageIcon size={12} /> {coverIdOf(worker) === p.id ? "Foto de perfil" : "Usar de foto de perfil"}
                   </button>
                   <button
                     type="button"

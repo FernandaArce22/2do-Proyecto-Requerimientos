@@ -55,3 +55,8 @@ export const coverIdOf = (w: Worker): string => str((w as unknown as AnyObj).cov
 export const setCoverId = (w: Worker, id: string) => {
   (w as unknown as AnyObj).coverId = id;
 };
+// Foto de perfil: la foto que el trabajador eligió con "Usar de foto de perfil" (si no hay, se muestran las iniciales).
+export const profilePhotoOf = (w: Worker): string | undefined => {
+  const id = coverIdOf(w);
+  return id ? photosOf(w).find((p) => p.id === id && p.url)?.url : undefined;
+};

@@ -5,6 +5,7 @@ import Avatar from "./Avatar";
 import Stars from "./Stars";
 import { categories } from "../data/mockData";
 import { colones, fromRate, lastJobText } from "../data/workers";
+import { profilePhotoOf } from "../data/workAdapter";
 import type { Worker } from "../data/workers";
 
 type Props = { worker: Worker; index: number; category: string };
@@ -25,7 +26,7 @@ export default function WorkerCard({ worker, index, category }: Props) {
         className="group flex gap-4 rounded-2xl border-2 border-transparent bg-white p-4 shadow-md shadow-black/10 transition-[border-color,box-shadow] duration-300 hover:border-terracotta-500 hover:shadow-xl hover:shadow-forest-900/20"
       >
         <div className="transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-3">
-          <Avatar name={worker.name} />
+          <Avatar name={worker.name} src={profilePhotoOf(worker)} />
         </div>
 
         <div className="min-w-0 flex-1 space-y-2">

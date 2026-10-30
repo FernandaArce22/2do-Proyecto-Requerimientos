@@ -29,6 +29,7 @@ import { categories } from "../data/mockData";
 import { SLOTS, formatDate, roundAdvance, todayISO } from "../data/requests";
 import type { Attachment, LatLng, ServiceRequest } from "../data/requests";
 import { colones, workers } from "../data/workers";
+import { profilePhotoOf } from "../data/workAdapter";
 import { useAppStore } from "../store/useAppStore";
 import { useRequestsStore } from "../store/useRequestsStore";
 
@@ -334,7 +335,7 @@ export default function RequestService() {
             Cancelar solicitud
           </button>
           <div className="mt-3 flex items-center gap-3">
-            <Avatar name={worker.name} />
+            <Avatar name={worker.name} src={profilePhotoOf(worker)} />
             <div>
               <p className="text-xs text-white/70">Solicitar servicio a</p>
               <h1 className="flex items-center gap-1.5 font-display text-2xl uppercase tracking-wide">

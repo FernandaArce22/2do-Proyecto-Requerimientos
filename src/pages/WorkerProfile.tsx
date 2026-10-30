@@ -8,6 +8,7 @@ import Stars from "../components/Stars";
 import ProfileCover from "../components/ProfileCover";
 import { categories } from "../data/mockData";
 import { colones, fromRate, lastJobText, workers } from "../data/workers";
+import { profilePhotoOf } from "../data/workAdapter";
 import type { Photo } from "../data/workers";
 import { useAppStore } from "../store/useAppStore";
 
@@ -56,7 +57,8 @@ export default function WorkerProfile() {
   const showToast = useAppStore((s) => s.showToast);
 
   const worker = workers.find((w) => w.id === id);
-  const available = !!worker && worker.verified && worker.active && worker.published;
+  const isOwner = !!worker && !!currentUser && worker.userId === currentUser.id;
+  const available = !!worker && ((worker.verified && worker.active && worker.published) || isOwner);
 
   const [open, setOpen] = useState<number | null>(null);
   const total = worker?.photos.length ?? 0;
@@ -113,6 +115,14 @@ export default function WorkerProfile() {
     <>
       <section className="relative overflow-hidden rounded-b-[2rem] bg-forest-900 pb-8 text-white">
         <ProfileCover worker={worker} />
+        {isOwner && (
+          <div className="relative mx-auto mb-2 max-w-5xl px-4 pt-3">
+            <p className="rounded-xl bg-gold-400 px-4 py-2 text-center text-sm font-bold text-forest-950">
+              Así ven los clientes tu perfil.
+              {!(worker.verified && worker.active && worker.published) && " Ahora está oculto en las búsquedas (borrador, inactivo o sin verificar)."}
+            </p>
+          </div>
+        )}
         <div className="relative mx-auto max-w-5xl px-4">
           <button
             type="button"
@@ -125,7 +135,7 @@ export default function WorkerProfile() {
 
           <div className="mt-4 flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
             <motion.div initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 260, damping: 18 }}>
-              <Avatar name={worker.name} size="lg" />
+              <Avatar name={worker.name} size="lg" src={profilePhotoOf(worker)} />
             </motion.div>
             <div className="flex-1 space-y-1.5">
               <h1 className="font-display text-3xl uppercase tracking-wide">{worker.name}</h1>

@@ -7,9 +7,9 @@ const palettes = [
   "from-violet-300 to-violet-500",
 ];
 
-type Props = { name: string; size?: "md" | "lg"; className?: string };
+type Props = { name: string; size?: "md" | "lg"; className?: string; src?: string };
 
-export default function Avatar({ name, size = "md", className = "" }: Props) {
+export default function Avatar({ name, size = "md", className = "", src }: Props) {
   const initials = name
     .split(" ")
     .filter(Boolean)
@@ -22,9 +22,9 @@ export default function Avatar({ name, size = "md", className = "" }: Props) {
 
   return (
     <span
-      className={`grid shrink-0 place-items-center rounded-full bg-gradient-to-br font-display text-forest-900 ring-4 ring-white ${palette} ${dim} ${className}`}
+      className={`grid shrink-0 place-items-center rounded-full bg-gradient-to-br overflow-hidden font-display text-forest-900 ring-4 ring-white ${palette} ${dim} ${className}`}
     >
-      {initials}
+      {src ? <img src={src} alt={name} className="h-full w-full rounded-full object-cover" /> : initials}
     </span>
   );
 }

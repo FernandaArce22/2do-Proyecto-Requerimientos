@@ -14,6 +14,7 @@ import Timeline from "../components/Timeline";
 import { FLOW_STEPS, flowIndex, formatDate, roundAdvance, statusInfo } from "../data/requests";
 import type { Rating, RequestStatus, ServiceRequest } from "../data/requests";
 import { colones, workers } from "../data/workers";
+import { profilePhotoOf } from "../data/workAdapter";
 import { useAppStore } from "../store/useAppStore";
 import { useRequestsStore } from "../store/useRequestsStore";
 import { normalize } from "../utils/search";
@@ -159,7 +160,7 @@ function RequestCard({ r, onCancel, onConfirm, onReport, onRate, onFindOther, on
       className="rounded-2xl border-2 border-transparent bg-white p-4 shadow-md shadow-black/10 transition-[border-color,box-shadow] duration-300 hover:border-terracotta-500/60 hover:shadow-xl"
     >
       <div className="flex items-start gap-3">
-        {worker && <Avatar name={worker.name} />}
+        {worker && <Avatar name={worker.name} src={profilePhotoOf(worker)} />}
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="font-display text-lg uppercase tracking-wide text-forest-900">{r.serviceTitle}</h2>

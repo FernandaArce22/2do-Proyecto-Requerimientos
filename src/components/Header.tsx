@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, ClipboardList, LogIn, LogOut, Repeat, Sprout } from "lucide-react";
+import { ChevronDown, ClipboardList, LogIn, LogOut, Repeat, Sprout, UserRound } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import Button from "./Button";
 import NotificationBell from "./NotificationBell";
 import { APP_NAME } from "../config";
 import type { Role } from "../data/users";
+import { findWorker } from "../data/workAdapter";
 import { homeFor } from "../routes";
 import { useAppStore } from "../store/useAppStore";
 
@@ -173,6 +174,16 @@ export default function Header() {
                           onClick={() => {
                             setOpen(false);
                             navigate("/trabajador/solicitudes");
+                          }}
+                        />
+                      )}
+                      {activeRole === "trabajador" && findWorker(user?.id) && (
+                        <MenuItem
+                          icon={<UserRound size={18} />}
+                          label="Ver mi perfil"
+                          onClick={() => {
+                            setOpen(false);
+                            navigate(`/trabajadores/${findWorker(user?.id)?.id}`);
                           }}
                         />
                       )}
